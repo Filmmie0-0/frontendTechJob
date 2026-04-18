@@ -13,7 +13,7 @@ import AdminDashboard from "./Admin/AdminDashboard.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import AdminRecord from "./Admin/AdminRecord.jsx";
 import AdminSetting from "./Admin/AdminSetting.jsx";
-import AdminWork from "./Admin/AdminWork.jsx";
+import AdminMaterial from "./Admin/AdminMaterial.jsx";
 import AdminAccount from "./Admin/AdminAccount.jsx";
 import MaterialList from "./Admin/AdminMaterial.jsx";
 
@@ -21,6 +21,7 @@ import ManagerDashboard from "./Manager/ManagerDashboard.jsx";
 import ManagerLayout from "./layouts/ManagerLayout.jsx";
 import ManagerRecord from "./Manager/ManagerRecord.jsx";
 import ManagerAccount from "./Manager/ManagerAccount.jsx";
+import ManagerInventory from './Manager/ManagerInventory'
 import ManagerSetting from "./Manager/ManagerSetting.jsx";
 
 import LeaderDashboard from "./Leader/LeaderDashboard.jsx";
@@ -56,26 +57,18 @@ export default function App() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  // [แก้ไข 2] รับค่า user เป็น Object และ Mapping Role ให้ตรงกัน
   const handleLogin = (user) => {
     setIsAuthenticated(true);
-
-    // ดึง role มาจากฐานข้อมูล
-    let currentRole = user.role;
-
-    // แปลงชื่อ Role จาก Database ให้ตรงกับ Route ของ Frontend
-    if (currentRole === 'supervisor') {
-      currentRole = 'manager';
-    } else if (currentRole === 'technician') {
-      currentRole = 'user';
-    }
-
-    setUserType(currentRole);
+    setUserType(user.role);
+    // เพิ่มบรรทัดนี้: เก็บข้อมูล user (เช่น user_id) ไว้ใน localStorage
+    localStorage.setItem("user", JSON.stringify(user));
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUserType(null);
+    // เพิ่มบรรทัดนี้: ล้างข้อมูลเมื่อ Logout
+    localStorage.removeItem("user");
   };
 
   const getDashboardElement = (Component, expectedUserType, props = {}) => {
@@ -102,8 +95,11 @@ export default function App() {
         {/* Admin Routes */}
         <Route element={<AdminLayout onLogout={handleLogout} />}>
           {/* --- แก้ไขจุดนี้: ส่ง { tasks: tasks } เข้าไปให้ AdminDashboard --- */}
-          <Route path="/admin" element={getDashboardElement(AdminDashboard, 'admin', { tasks: tasks })} />
-          <Route path="work" element={<AdminWork />} />
+          <Route path="/admin" element={
+            getDashboardElement(AdminDashboard, 'admin', { tasks: tasks })
+          } />
+
+          <Route path="material" element={<AdminMaterial />} />
 
           {/* AdminRecord มีการอัปเดต tasks อยู่แล้ว Code ส่วนนี้ถูกต้องแล้ว */}
           <Route path="record" element={
@@ -126,6 +122,7 @@ export default function App() {
           <Route path="manager-record" element={<ManagerRecord tasks={tasks} />} />
           <Route path="manager-account" element={<ManagerAccount tasks={tasks} />} />
           <Route path="manager-setting" element={<ManagerSetting />} />
+          <Route path="/manager/inventory" element={<ManagerInventory />} />
         </Route>
 
         <Route element={<LeaderLayout onLogout={handleLogout} />}>

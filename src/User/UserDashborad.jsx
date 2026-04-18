@@ -1,10 +1,10 @@
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
-} from 'recharts'
+} from 'recharts';
 // แก้ไข: เปลี่ยน ListTask เป็น ClipboardList ซึ่งเป็นชื่อมาตรฐาน
-import { TrendingUp, CheckCircle, Clock, Award, Star, ClipboardList } from 'lucide-react'
-import React, { useMemo, useState, useCallback } from 'react'
+import { TrendingUp, CheckCircle, Clock, Award, Star, ClipboardList } from 'lucide-react';
 
 const rankings = [
   { name: 'สมชาย ใจดี', score: 95 },

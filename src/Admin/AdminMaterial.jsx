@@ -44,8 +44,19 @@ const AdminMaterial = () => {
         }
     };
 
+    const fetchRequests = async () => {
+        try {
+            const response = await axios.get('http://localhost:3000/requests');
+            // จัดการข้อมูลที่ได้จาก API
+        } catch (error) {
+            console.error("ดึงข้อมูลรายการเบิกไม่มา เพราะ:", error);
+        }
+    };
+
+
     useEffect(() => {
         fetchMaterials();
+        fetchRequests();
     }, []);
 
     // ==========================================
@@ -59,7 +70,7 @@ const AdminMaterial = () => {
                 await axios.put(`http://localhost:3000/materials/${formData.material_id}`, formData);
             } else {
                 // สร้างข้อมูลใหม่ (เพิ่ม)
-                await axios.post('http://localhost:3000/materials', formData);
+                await axios.post('http://localhost:3000/materials/add', formData);
             }
             fetchMaterials(); // โหลดข้อมูลตารางใหม่
             handleClose();    // ปิดหน้าต่าง Modal
@@ -124,6 +135,8 @@ const AdminMaterial = () => {
 
                     <Col md={9}>
                         <Tab.Content>
+
+                            {/* วัสดุอุปกรณ์ (stock) */}
                             <Tab.Pane eventKey="stock">
                                 <Card className="border-0 shadow-sm">
                                     <Card.Header className="bg-white d-flex justify-content-between align-items-center py-3">
@@ -153,6 +166,7 @@ const AdminMaterial = () => {
                                                     <th>คงเหลือ</th>
                                                     <th>หน่วย</th>
                                                     <th className="text-center">จัดการ</th>
+                                                    <th>เปลี่ยนแปลงล่าสุด</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -188,6 +202,7 @@ const AdminMaterial = () => {
                                                                     <i className="bi bi-trash"></i>
                                                                 </Button>
                                                             </td>
+                                                            <td>{item.created_at}</td>
                                                         </tr>
                                                     ))
                                                 ) : (
@@ -198,8 +213,85 @@ const AdminMaterial = () => {
                                     </Card.Body>
                                 </Card>
                             </Tab.Pane>
+
+                            {/* คำขอเบิกวัสดุ (requests) */}
+                            <Tab.Pane eventKey="requests">
+                                <Card className="border-0 shadow-sm">
+                                    <Card.Header className="bg-white py-3">
+                                        <h5 className="mb-0">คำขอเบิกวัสดุ</h5>
+                                    </Card.Header>
+                                    <Card.Body>
+                                         <Form.Group className="mb-3">
+                                            <div className="input-group">
+                                                <span className="input-group-text bg-white border-end-0"><i className="bi bi-search"></i></span>
+                                                <Form.Control
+                                                    type="text"
+                                                    placeholder="ค้นหา..."
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                />
+                                            </div>
+                                        </Form.Group>
+
+                                         <Table hover responsive className="align-middle">
+                                            <thead className="bg-light">
+                                                <tr>
+                                                    <th>รหัสคำขอ</th>
+                                                    <th>ชื่อวัสดุ</th>
+                                                    <th>จำนวน</th>
+                                                    <th>หน่วย</th>
+                                                    <th className="text-center">ยอมรับ</th>
+                                                    <th>เปลี่ยนแปลงล่าสุด</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {loading ? (
+                                                    <tr><td colSpan="5" className="text-center">กำลังโหลดข้อมูล...</td></tr>
+                                                ) : filteredMaterials.length > 0 ? (
+                                                    filteredMaterials.map(item => (
+                                                        <tr key={item.material_id}>
+                                                            <td><strong>{item.material_code}</strong></td>
+                                                            <td>{item.name}</td>
+                                                            <td>
+                                                                {item.quantity <= 5 ?
+                                                                    <Badge bg="danger">{item.quantity}</Badge> :
+                                                                    <span>{item.quantity}</span> }
+                                                            </td>
+                                                            <td>{item.unit}</td>
+                                                            <td className="text-center">
+                                                                {/* ผูกฟังก์ชันแก้ไข */}
+                                                                <Button 
+                                                                    variant="outline-warning" 
+                                                                    size="sm" 
+                                                                    className="me-1"
+                                                                    onClick={() => openEditModal(item)}
+                                                                >
+                                                                    <i className="bi bi-pencil"></i>
+                                                                </Button>
+                                                                {/* ผูกฟังก์ชันลบ */}
+                                                                <Button 
+                                                                    variant="outline-danger" 
+                                                                    size="sm"
+                                                                    onClick={() => handleDelete(item.material_id)}
+                                                                >
+                                                                    <i className="bi bi-trash"></i>
+                                                                </Button>
+                                                            </td>
+                                                            <td>{item.created_at}</td>
+                                                        </tr>
+                                                    ))
+                                                ) : (
+                                                    <tr><td colSpan="5" className="text-center">ไม่พบข้อมูลวัสดุ</td></tr>
+                                                )}
+                                            </tbody>
+                                        </Table>
+
+                                    </Card.Body>
+                                </Card>
+                            </Tab.Pane>
+
                         </Tab.Content>
                     </Col>
+
                 </Row>
             </Tab.Container>
 
