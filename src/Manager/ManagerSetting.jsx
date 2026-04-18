@@ -20,8 +20,9 @@ const Settings = () => {
     confirmPassword: ''
   });
 
-  // ใช้สำหรับการตั้งค่า API URL ให้เปลี่ยนง่ายขึ้นในอนาคต
-  const API_BASE_URL = 'http://192.168.1.106:3000/api/manager';
+  // 1. สร้างตัวแปร SERVER_URL กลางเอาไว้
+  const SERVER_URL = 'http://192.168.1.106:3000';
+  const API_BASE_URL = `${SERVER_URL}/api/manager`;
 
   useEffect(() => {
     // 1. เปลี่ยนมาดึงข้อมูลจากคีย์ "session" ตามที่ App.jsx บันทึกไว้
@@ -53,7 +54,7 @@ const Settings = () => {
             name: userData.name || loggedInUser.name || '',
             email: userData.email || loggedInUser.email || '',
             phone: userData.phone || '',
-            avatar: null
+            avatar: userData.avatar || null
           });
         })
         .catch(error => {
@@ -90,7 +91,13 @@ const Settings = () => {
         if (response.status === 200) {
           alert('บันทึกข้อมูลส่วนตัวเรียบร้อยแล้ว');
           // อัปเดต Session ใน LocalStorage
-          sessionData.user = { ...loggedInUser, name: profile.name, email: profile.email, phone: profile.phone };
+          sessionData.user = {
+            ...loggedInUser,
+            name: profile.name,
+            email: profile.email,
+            phone: profile.phone,
+            avatar: profile.avatar
+          };
           localStorage.setItem('session', JSON.stringify(sessionData));
         }
       } catch (error) {
@@ -207,7 +214,7 @@ const Settings = () => {
                         >
                           {profile.avatar ? (
                             <img
-                              src={`http://192.168.1.106:3000/uploads/${profile.avatar}`}
+                              src={`${SERVER_URL}/uploads/${profile.avatar}`}
                               alt="Profile"
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />

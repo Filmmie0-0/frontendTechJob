@@ -103,5 +103,5 @@ const MenuButton = ({ to, active, icon, label }) => (
         </button>
     </Link>
 )
-
+    
 export default UserNavbar
